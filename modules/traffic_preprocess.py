@@ -1,12 +1,16 @@
-from copyreg import constructor
-
-
 import networkx as nx
 
-class TrafficPreprocessModule:
-    def __init__(self, topology_dir):
-        file = open(topology_dir, "rb")
-        self.G = nx.read_edgelist(file)
-        file.close()
-        print(f'🏙️  Loaded topology with {self.G.number_of_nodes()} nodes and {self.G.number_of_edges()} edges.')
+MAXIMUM_VELOCITY = 40  # km/h (chequear unidad de medida)
 
+
+class TrafficPreprocessModule:
+    def __init__(self, G):
+        self.G = G
+
+    def get_traffic_network(self):
+        G_weighted = nx.Graph(self.G)
+        for edge in self.G.edges():
+            time_weight = self.G[edge[0]][edge[1]]['weight']/MAXIMUM_VELOCITY
+            G_weighted.add_edge(
+                edge[0], edge[1], weight=time_weight)
+        return G_weighted
